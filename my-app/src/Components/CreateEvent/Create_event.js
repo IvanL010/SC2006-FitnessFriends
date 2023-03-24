@@ -11,6 +11,8 @@ import { v4 as uuidv4 } from "uuid";
 import { GoogleMap, useLoadScript, Marker, MarkerClusterer, MarkerF } from "@react-google-maps/api";
 import { useMemo } from "react";
 import { render } from "@testing-library/react";
+import MapContainer from "../EventMap/EventMap";
+
 
 export default function CreateEvent() {
     // const userId = useStoreState("userId");
@@ -45,7 +47,7 @@ export default function CreateEvent() {
     const [filterMapData, setFilterMapData] = useState([]);
 
     const getMarkerLoc = async () => {
-        const docRef = query(collection(firestore, "locations"), limit(50));
+        const docRef = query(collection(firestore, "locations"), limit(5));
 		const docu = await getDocs(docRef);
         var mapArr = [];
 		docu.forEach((doc) => {
@@ -119,7 +121,7 @@ export default function CreateEvent() {
                 eventCategory: eventActivity,
                 eventLocation: selected.name,
                 eventAttendees:[],
-                eventPosition: {
+                position: {
                     lat: selected.position.lat,
                     lng: selected.position.lng
                 },
@@ -189,7 +191,7 @@ export default function CreateEvent() {
                         <b>Selected Location</b>
                         <p>{selected.name}</p>
                         <div className="map-contain">
-                            <MapContainer state={selected} setState={setSelected} mapData={mapData}/>
+                            <MapContainer events={mapData} state={selected} setState={setSelected} mapOptions={{}}/>
                             <div className="search-location">
                                 <input type="text" value={filterValue} onChange={(e)=>changeFilter(e)}></input>
                                 <div className="location-list">
@@ -208,37 +210,37 @@ export default function CreateEvent() {
     )
 }
 
-function MapContainer({state, setState, mapData}) {
-    const { isLoaded } = useLoadScript({
-        googleMapsApiKey: "AIzaSyCGCznAwZAFJ8qMQY1ckg6EfDwuczmepWI",
-    });
-    if (!isLoaded) return <div>..Loading</div>;
-    return <EventMap state={state} setState={setState} mapData={mapData}/>;
-}
+// function MapContainer({state, setState, mapData}) {
+//     const { isLoaded } = useLoadScript({
+//         googleMapsApiKey: "AIzaSyCGCznAwZAFJ8qMQY1ckg6EfDwuczmepWI",
+//     });
+//     if (!isLoaded) return <div>..Loading</div>;
+//     return <EventMap state={state} setState={setState} mapData={mapData}/>;
+// }
 
 
-function EventMap({state, setState, mapData}) {
-    const [zoom, setZoom] = useState(18)
-    const onMarkerClick = (event) => {
-        console.log(event);
-        setState(event);
-        setZoom(14)
-    }
+// function EventMap({state, setState, mapData}) {
+//     const [zoom, setZoom] = useState(18)
+//     const onMarkerClick = (event) => {
+//         console.log(event);
+//         setState(event);
+//         setZoom(14)
+//     }
 
-    return (
-        <>
-          <GoogleMap
-            zoom={zoom}
-            center={state.position}
-            mapContainerClassName="event-map">
-                <MarkerClusterer>
-                {clusterer => 
-                    mapData.map((marker, index) => (
-                        <Marker key={"marker-" + index} id={index} position={marker.position} clusterer={clusterer} onClick={()=>onMarkerClick(marker)}/>
-                    ))
-                }
-                </MarkerClusterer>
-          </GoogleMap>
-        </>
-      );
-}
+//     return (
+//         <>
+//           <GoogleMap
+//             zoom={zoom}
+//             center={state.position}
+//             mapContainerClassName="event-map">
+//                 <MarkerClusterer>
+//                 {clusterer => 
+//                     mapData.map((marker, index) => (
+//                         <Marker key={"marker-" + index} id={index} position={marker.position} clusterer={clusterer} onClick={()=>onMarkerClick(marker)}/>
+//                     ))
+//                 }
+//                 </MarkerClusterer>
+//           </GoogleMap>
+//         </>
+//       );
+// }

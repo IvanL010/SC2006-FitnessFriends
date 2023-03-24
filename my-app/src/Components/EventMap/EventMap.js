@@ -5,52 +5,57 @@ import {
   Marker,
   MarkerClusterer,
 } from "@react-google-maps/api";
+import { useState, useEffect } from "react";
 import "./event-map-styles.css";
 
-export default function MapContainer({events, setFilters}) {
+export default function MapContainer({events, state, setState, mapOptions}) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyCGCznAwZAFJ8qMQY1ckg6EfDwuczmepWI",
   });
   if (!isLoaded) return <div>..Loading</div>;
-  return <Map events={events} setFilters={setFilters}/>;
+  return <Map events={events} state={state} setState={setState} mapOptions={mapOptions}/>;
 }
 
-function Map({events, setFilters}) {
-  if (events == undefined) {
-    events = [];
+function Map({events, state, setState, mapOptions}) {
+  const [displayEvents, setEvents] = useState([]);
+
+  const initEvents = () => {
+    if (events != undefined) {
+        if (Array.isArray(events) == true) {
+            // Already array, can map 
+            console.log("hi");
+            setEvents(events);
+        }else {
+          console.log("hi");
+            // Not array, cant map 
+            setEvents({events});
+        }
+    }
+    console.log({events});
+    console.log({displayEvents});
   }
-  console.log("running");
+
   const onMarkerClick = (event) => {
-    setFilters({location: event.eventLocation});
+      if (setState != undefined) {
+        setState(event);
+      }
   }
-  /*
-	const ntu = useMemo(() => ({lat: 1.348578045634617, lng: 103.6831722481014}), [])
-	const mark1 = useMemo(() => ({lat: 1.3485887714987213, lng: 103.68382670706136}))
-	const mark2 = useMemo(() => ({lat: 1.3458889951752477, lng: 103.69933201581368}))
-	const mark3 = useMemo(() => ({lat: 1.3451843416350524, lng: 103.69917596458055}))
-	*/
-  // const markerLoc: Array<LatLngLiteral> = [];
-  // markerLoc.push({lat: 1.348578045634617, lng: 103.6831722481014});
-  // markerLoc.push({lat: 1.3485887714987213, lng: 103.68382670706136});
-  // markerLoc.push({lat: 1.3458889951752477, lng: 103.69933201581368});
-  // markerLoc.push({lat: 1.3451843416350524, lng: 103.69917596458055});
+
+  useEffect(() => {
+		initEvents();
+	  }, []);
+
   return (
     <>
       <GoogleMap
         zoom={18}
         center={{lat:1.348578045634617,lng:103.6831722481014}}
         mapContainerClassName="map-container"
+        options={mapOptions}
       >
-        {/* <Marker icon={"https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"}
-				position={{lat: 1.348578045634617, lng: 103.6831722481014}} /> */}
-        {/* <Marker position={ntu} />
-				<Marker position={mark1} />
-				<Marker position={mark2} />
-				<Marker position={mark3} /> */}
-
         <MarkerClusterer>
                 {clusterer => 
-                    events.map((marker, index) => (
+                    displayEvents.map((marker, index) => (
                         <Marker key={"marker-" + index} id={index} position={marker.eventPosition} clusterer={clusterer} onClick={()=>onMarkerClick(marker)}/>
                     ))
                 }
